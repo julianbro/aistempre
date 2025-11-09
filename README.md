@@ -1,175 +1,131 @@
-# neurotrader
+# AI Trading Platform
 
 **Multi-input, multi-horizon, probabilistic Transformer for financial time-series prediction**
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+[![Node 20](https://img.shields.io/badge/node-20-green.svg)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🚀 Overview
+## 🏗️ Monorepo Structure
 
-`neurotrader` is a comprehensive Python package for training and serving deep learning models for financial time-series prediction. It implements a Multi-Scale Transformer architecture that:
+This repository is organized as a monorepo with the following structure:
 
-- **Predicts next price movements** using log-returns with calibrated probability distributions
-- **Classifies short-term and long-term trends** (UP/DOWN/FLAT) with epsilon bands
-- **Outputs calibrated probabilities** and prediction intervals for uncertainty quantification
-- **Supports multi-resolution inputs** across different timeframes (1m, 15m, 4h, 1d, 1w)
-- **Provides full ML pipeline** from data loading to backtesting
-
-## ✨ Key Features
-
-### 🎯 Multi-Task Learning
-- **Regression**: Next-price prediction with Gaussian NLL, Student-t, or Quantile heads
-- **Classification**: Short-term and long-term trend prediction with configurable horizons
-- **Calibrated Outputs**: Temperature scaling, isotonic regression, and conformal prediction
-
-### 🔧 Flexible Architecture
-- **Multi-Scale Transformer**: Separate encoders per timeframe with cross-attention fusion
-- **Patching**: Efficient processing of long sequences via patch embeddings
-- **Multiple Loss Functions**: MSE, MAE, Huber, Quantile, Gaussian NLL, Student-t NLL, Cross-Entropy, Focal
-
-### 📊 Comprehensive Feature Engineering
-- **Technical Indicators**: RSI, MACD, EMA, Bollinger Bands, ATR, ADX, Stochastic
-- **Price Features**: Log returns, cumulative returns, VWAP, z-scored price
-- **Volatility Measures**: Realized volatility, Parkinson, Garman-Klass
-- **Calendar Features**: Hour/day/month encoding, session flags
-- **Plugin System**: Easy-to-extend feature registry
-
-### 🛡️ Robust Evaluation
-- **Purged Walk-Forward CV**: No data leakage between folds
-- **Multiple Metrics**: RMSE, MAE, sMAPE, Directional Accuracy, F1, AUROC, MCC, ECE, Brier
-- **Backtesting**: Sharpe ratio, Sortino ratio, Maximum Drawdown, Calmar ratio
-
-### 🔬 Hyperparameter Tuning
-- **Optuna**: TPE and CMA-ES samplers with pruning
-- **Ray Tune PBT**: Population-based training for scalable optimization
-- **Evolutionary**: DEAP/Nevergrad for strategy threshold optimization
-
-## 📦 Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/julianbro/aistempre.git
-cd aistempre
-
-# Install the package
-pip install -e .
-
-# Or with development dependencies
-pip install -e ".[dev]"
 ```
-
-### Requirements
-- Python 3.11+
-- PyTorch 2.0+
-- PyTorch Lightning 2.0+
-- Hydra for configuration management
-- See `pyproject.toml` for full dependencies
+aistempre/
+├── frontend/          # Next.js 14 + TypeScript + Tailwind CSS
+├── api/              # FastAPI + neurotrader package
+├── docs/             # Documentation
+├── .github/          # GitHub Actions CI/CD
+├── .devcontainer/    # VSCode devcontainer configuration
+└── docker-compose.yml # Local development setup
+```
 
 ## 🚀 Quick Start
 
-### 1. Prepare Your Data
+### Prerequisites
 
-Place your OHLCV data in CSV or Parquet format:
+- **Node.js** 18+ and **pnpm** 8+
+- **Python** 3.11+
+- **Docker** and **Docker Compose** (for containerized setup)
 
-```
-data/
-  BTCUSDT_1m.csv
-  BTCUSDT_15m.csv
-  BTCUSDT_4h.csv
-  BTCUSDT_1d.csv
-  BTCUSDT_1w.csv
-```
-
-Each file should have columns: `timestamp, open, high, low, close, volume`
-
-### 2. Configure Your Experiment
-
-Edit configuration files in `configs/`:
-
-```yaml
-# configs/data.yaml
-source:
-  type: csv
-  path: ./data
-timeframes: [1m, 15m, 4h, 1d, 1w]
-start_date: "2020-01-01"
-end_date: "2023-12-31"
-
-# configs/model.yaml
-variant: base  # base | medium | large
-base:
-  d_model: 256
-  n_heads: 8
-  n_layers_tf: 2
-  patch_len: 16
-
-# configs/train.yaml
-trainer:
-  max_epochs: 100
-  accelerator: auto
-optimizer:
-  lr: 2.0e-4
-  weight_decay: 0.05
-```
-
-### 3. Train a Model
+### One-Command Local Setup
 
 ```bash
-# Train with default config
-neurotrader-train
-
-# Train with custom config
-neurotrader-train --config-name my_config.yaml
-
-# Override specific parameters
-neurotrader-train -o model.variant=large -o trainer.max_epochs=200
+# Start both frontend and API
+docker compose up
 ```
 
-### 4. Run Predictions
+This will:
+- Start the **frontend** at [http://localhost:3000](http://localhost:3000)
+- Start the **API** at [http://localhost:8000](http://localhost:8000)
+
+### Manual Development Setup
+
+#### Frontend
 
 ```bash
-# Generate predictions
-neurotrader-predict \
-  --checkpoint checkpoints/best_model.ckpt \
-  --input data/test_data.csv \
-  --output predictions.parquet
+cd frontend
+
+# Install dependencies
+pnpm install
+
+# Run development server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Lint
+pnpm lint
+
+# Type check
+pnpm type-check
+
+# Format code
+pnpm format
 ```
 
-### 5. Calibrate Probabilities
+#### API
 
 ```bash
-# Calibrate on validation set
-neurotrader-calibrate \
-  --checkpoint checkpoints/best_model.ckpt \
-  --val-data data/val_data.csv \
-  --output calibrated_model.ckpt
+cd api
+
+# Install dependencies
+pip install -e ".[dev]"
+
+# Run development server
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Run tests
+pytest -q
+
+# Lint
+ruff check .
+
+# Type check
+mypy app/
 ```
 
-### 6. Backtest Strategy
+## 🎯 Key Features
 
-```bash
-# Run backtest
-neurotrader-backtest \
-  --predictions predictions.parquet \
-  --prices data/historical_prices.csv \
-  --cash 100000 \
-  --output backtest_results.json
+### Frontend (Next.js)
+- **TypeScript** with strict mode
+- **Tailwind CSS** for styling
+- **ESLint** and **Prettier** for code quality
+- Server-side rendering and static generation
+- Optimized for production
+
+### Backend (FastAPI)
+- **FastAPI** for high-performance API
+- **neurotrader** package integration for ML models
+- **Ruff** and **mypy** for code quality and type checking
+- Async/await support
+- OpenAPI documentation at `/docs`
+
+### ML Pipeline (neurotrader)
+- **Multi-Scale Transformer**: Separate encoders per timeframe with cross-attention fusion
+- **Multi-Task Learning**: Regression and classification heads
+- **Calibrated Outputs**: Temperature scaling, isotonic regression, and conformal prediction
+- **Comprehensive Feature Engineering**: Technical indicators, volatility measures, calendar features
+- **Robust Evaluation**: Purged walk-forward CV, multiple metrics, backtesting
+- **Hyperparameter Tuning**: Optuna, Ray Tune PBT, Evolutionary optimization
+
+## 📐 Architecture
+
+### System Overview
+
 ```
-
-### 7. Tune Hyperparameters
-
-```bash
-# Optuna tuning
-neurotrader-tune --backend optuna --n-trials 100
-
-# Ray Tune PBT
-neurotrader-tune --backend ray-pbt --time-budget-hours 6
-
-# Evolutionary optimization
-neurotrader-tune --backend evolutionary
+┌─────────────┐      ┌──────────────┐      ┌─────────────────┐
+│   Browser   │─────▶│   Frontend   │─────▶│      API        │
+│             │      │   (Next.js)  │      │   (FastAPI)     │
+└─────────────┘      └──────────────┘      └─────────────────┘
+                                                    │
+                                                    ▼
+                                            ┌─────────────────┐
+                                            │  neurotrader    │
+                                            │  ML Pipeline    │
+                                            └─────────────────┘
 ```
-
-## 📐 Model Architecture
 
 ### Multi-Scale Transformer
 
@@ -189,128 +145,99 @@ Pooling to [B, d_model]
 Multi-Task Heads:
   ├─ Regression Head (Gaussian NLL / Student-t / Quantile)
   ├─ Short-Term Trend Head (3-class softmax)
-  └─ Long-Term Trend Head (3-class softmax)
-  ↓
-Outputs: {
-  regression: {mu, var},
-  short_trend: {logits, probs},
-  long_trend: {logits, probs}
-}
+  └─ Long-Term Trend Head (3-class softass)
 ```
 
-### Recommended Sizes
+## 🧪 CI/CD
 
-**Base** (default):
-- `d_model=256, n_heads=8, n_layers_tf=2, n_layers_fusion=2`
-- Suitable for single-symbol training on consumer GPUs
+GitHub Actions automatically:
+- ✅ Lints and type-checks frontend code
+- ✅ Builds the frontend
+- ✅ Runs Python tests with pytest
+- ✅ Lints Python code with ruff
+- ✅ Type-checks Python code with mypy
+- ✅ Builds Docker images for both services
 
-**Medium**:
-- `d_model=512, n_heads=8, n_layers_tf=3, n_layers_fusion=3`
-- More capacity, requires more data and compute
+## 📦 Docker
 
-**Large**:
-- `d_model=768, n_heads=12, n_layers_tf=4, n_layers_fusion=4`
-- For large datasets and multi-GPU setups
-
-## 🎯 Probability of Correct Output
-
-### Classification
-After temperature scaling calibration:
-```python
-p_correct = max(calibrated_probs)
-```
-
-Track calibration quality with ECE and Brier score.
-
-### Regression
-For Gaussian/Student-t heads:
-```python
-# Probability within epsilon band (e.g., 10 bps)
-p_within_eps = CDF(+ε/σ) - CDF(-ε/σ)
-```
-
-For conformal prediction:
-```python
-# Empirical coverage of (1-α) prediction intervals
-coverage_rate = fraction_of_targets_in_intervals
-```
-
-## 🔬 Loss Functions
-
-Easily swap losses via `configs/loss.yaml`:
-
-```yaml
-regression:
-  loss_type: gaussian_nll  # mse | mae | huber | quantile | gaussian_nll | student_t_nll
-classification:
-  loss_type: cross_entropy  # cross_entropy | focal
-weights:
-  regression: 0.5
-  short_trend: 0.25
-  long_trend: 0.25
-thresholds:
-  epsilon_bps: 10
-```
-
-## 🧪 Testing
+### Build Images
 
 ```bash
-# Run all tests
-pytest
+# Build frontend
+docker build -t aistempre-frontend ./frontend
 
-# Run specific test modules
-pytest tests/test_losses.py
-pytest tests/test_splitter.py
-pytest tests/test_labels.py
-
-# With coverage
-pytest --cov=neurotrader --cov-report=html
+# Build API
+docker build -t aistempre-api ./api
 ```
 
-## 📚 Project Structure
+### Run with Docker Compose
 
-```
-neurotrader/
-├── configs/               # Hydra configuration files
-│   ├── data.yaml
-│   ├── model.yaml
-│   ├── train.yaml
-│   ├── loss.yaml
-│   ├── features.yaml
-│   └── tune.yaml
-├── src/neurotrader/
-│   ├── cli.py            # CLI entrypoints
-│   ├── data/             # Data loading and preprocessing
-│   ├── features/         # Feature engineering
-│   ├── labels/           # Target generation
-│   ├── models/           # Model architecture
-│   ├── losses/           # Loss functions and calibration
-│   ├── training/         # Training loop and metrics
-│   ├── tuning/           # Hyperparameter optimization
-│   ├── inference/        # Prediction and serving
-│   ├── backtest/         # Backtesting utilities
-│   └── utils/            # Common utilities
-├── scripts/              # Training/inference scripts
-└── tests/                # Unit tests
+```bash
+# Start services
+docker compose up
+
+# Start in detached mode
+docker compose up -d
+
+# Stop services
+docker compose down
+
+# View logs
+docker compose logs -f
 ```
 
-## ⚠️ Important Guardrails
+## 🔧 Development
 
-### Data Leakage Prevention
-- ✅ Scalers fit only on training data
-- ✅ Features computed using only past information
-- ✅ Purged walk-forward cross-validation
-- ✅ Strict UTC time alignment
-- ✅ No forward-filling across session boundaries
+### VSCode DevContainer
 
-### Evaluation Best Practices
-- ✅ Walk-forward validation (no peeking into future)
-- ✅ Report out-of-sample metrics per fold
-- ✅ Never tune on test set
-- ✅ Recalibrate after any retraining
+This project includes a devcontainer configuration for VSCode:
 
-### Risk Disclaimer
-⚠️ **This software is for research and educational purposes only.**
+1. Install the **Remote - Containers** extension
+2. Open the project in VSCode
+3. Press `F1` and select **"Remote-Containers: Reopen in Container"**
+
+The devcontainer will automatically:
+- Set up Python and Node.js environments
+- Install all dependencies
+- Configure linting and formatting
+
+### Code Quality
+
+We enforce strict code quality standards:
+
+**Frontend:**
+- ESLint with Next.js recommended rules
+- Prettier for consistent formatting
+- TypeScript in strict mode
+
+**Backend:**
+- Ruff for fast Python linting
+- mypy for static type checking
+- pytest for testing
+
+## 📚 Documentation
+
+- [Frontend README](./frontend/README.md)
+- [API README](./api/README.md)
+- [neurotrader Documentation](./docs/)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests and linters
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## ⚠️ Risk Disclaimer
+
+**This software is for research and educational purposes only.**
 
 - Not financial advice
 - Past performance does not guarantee future results
@@ -318,29 +245,11 @@ neurotrader/
 - Always validate on held-out test sets
 - Use proper risk management in live trading
 
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
-- Built with [PyTorch](https://pytorch.org/) and [PyTorch Lightning](https://lightning.ai/)
+- Built with [Next.js](https://nextjs.org/), [FastAPI](https://fastapi.tiangolo.com/), [PyTorch](https://pytorch.org/), and [PyTorch Lightning](https://lightning.ai/)
 - Configuration management via [Hydra](https://hydra.cc/)
 - Inspired by research in financial ML and transformer architectures
-
-## 📧 Contact
-
-For questions or issues, please open a GitHub issue.
 
 ---
 
