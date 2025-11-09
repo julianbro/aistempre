@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     build:
@@ -25,7 +23,8 @@ services:
       - DATA_DIR=/app/data
       - CACHE_DIR=/app/cache
     env_file:
-      - .env
+      - path: .env
+        required: false
     volumes:
       - ./data:/app/data
       - ./cache:/app/cache
