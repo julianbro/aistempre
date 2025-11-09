@@ -1,0 +1,180 @@
+# Hyperparameter tuning configuration
+
+# Tuning backend
+backend: optuna  # optuna | ray_pbt | evolutionary
+
+# Optuna settings
+optuna:
+  n_trials: 100
+  timeout: null  # seconds, null for no timeout
+  sampler: tpe  # tpe | cmaes | random
+  pruner: median  # median | hyperband | percentile | null
+  direction: maximize  # maximize | minimize
+  metric: val_composite_score
+  
+  # TPE sampler specific
+  tpe_startup_trials: 10
+  tpe_n_ei_candidates: 24
+  
+  # Pruner specific
+  pruner_n_startup_trials: 5
+  pruner_n_warmup_steps: 10
+  pruner_interval_steps: 1
+
+# Ray Tune PBT settings
+ray_pbt:
+  time_budget_hours: 6
+  num_samples: 20
+  perturbation_interval: 5  # epochs between perturbations
+  
+  # Exploit/explore
+  resample_probability: 0.25
+  perturbation_factors: [0.8, 1.2]
+  
+  # Resources
+  cpus_per_trial: 2
+  gpus_per_trial: 0.5
+  
+  # Metric
+  metric: val_composite_score
+  mode: max
+
+# Evolutionary (DEAP/Nevergrad)
+evolutionary:
+  algorithm: nevergrad  # deap | nevergrad
+  population_size: 50
+  n_generations: 30
+  crossover_prob: 0.7
+  mutation_prob: 0.2
+  
+  # Nevergrad specific
+  ng_optimizer: OnePlusOne  # OnePlusOne | CMA | PSO | TwoPointsDE
+  ng_budget: 1500
+  
+  # Fitness function weights
+  fitness_weights:
+    val_rmse: -0.3  # negative because we minimize RMSE
+    val_da_short: 0.25
+    val_sharpe: 0.25
+    turnover_penalty: -0.2
+
+# Search space definitions
+search_space:
+  # Model architecture
+  d_model:
+    type: categorical
+    choices: [128, 256, 512, 768]
+    
+  n_heads:
+    type: categorical
+    choices: [4, 8, 12, 16]
+    
+  n_layers_tf:
+    type: int
+    low: 1
+    high: 4
+    
+  n_layers_fusion:
+    type: int
+    low: 1
+    high: 4
+    
+  ff_mult:
+    type: categorical
+    choices: [2, 4, 8]
+    
+  dropout:
+    type: float
+    low: 0.0
+    high: 0.5
+    step: 0.05
+    
+  patch_len:
+    type: categorical
+    choices: [8, 16, 32, 64]
+    
+  stride:
+    type: categorical
+    choices: [4, 8, 16, 32]
+  
+  # Training hyperparameters
+  lr:
+    type: loguniform
+    low: 1.0e-5
+    high: 1.0e-3
+    
+  weight_decay:
+    type: loguniform
+    low: 1.0e-6
+    high: 1.0e-1
+    
+  batch_size:
+    type: categorical
+    choices: [16, 32, 64, 128]
+  
+  # Loss weights
+  loss_weight_regression:
+    type: float
+    low: 0.2
+    high: 0.8
+    step: 0.05
+    
+  loss_weight_short:
+    type: float
+    low: 0.1
+    high: 0.5
+    step: 0.05
+    
+  loss_weight_long:
+    type: float
+    low: 0.1
+    high: 0.5
+    step: 0.05
+  
+  # Threshold tuning
+  epsilon_bps:
+    type: int
+    low: 5
+    high: 50
+    step: 5
+  
+  # Backtest strategy parameters
+  entry_threshold_prob:
+    type: float
+    low: 0.5
+    high: 0.95
+    step: 0.05
+    
+  exit_threshold_prob:
+    type: float
+    low: 0.3
+    high: 0.7
+    step: 0.05
+
+# Composite objective
+objective:
+  type: weighted_sum  # weighted_sum | pareto
+  
+  # Weights for composite score (must sum to 1.0)
+  weights:
+    val_rmse: -0.3  # negative for minimization
+    val_mae: -0.2
+    val_f1_short: 0.2
+    val_auroc_short: 0.1
+    val_sharpe: 0.2
+    
+  # Constraints (trials violating these are pruned)
+  constraints:
+    min_val_da_short: 0.5  # directional accuracy must be > random
+    max_val_loss: 10.0  # prevent diverged trials
+
+# Early stopping for trials
+trial_early_stopping:
+  patience: 5
+  min_delta: 0.001
+
+# Study persistence
+study:
+  storage: sqlite:///optuna_study.db
+  study_name: neurotrader_hpo
+  load_if_exists: true

@@ -1,0 +1,77 @@
+# Model architecture configuration
+
+# Variant preset: base | medium | large
+variant: base
+
+# Base model parameters (for variant=base)
+base:
+  d_model: 256
+  n_heads: 8
+  ff_mult: 4
+  n_layers_tf: 2  # encoder layers per timeframe
+  n_layers_fusion: 2  # cross-timeframe fusion layers
+  dropout: 0.1
+  patch_len: 16
+  stride: 8
+  context_len: 512  # per timeframe after patching
+  
+# Medium model parameters (for variant=medium)
+medium:
+  d_model: 512
+  n_heads: 8
+  ff_mult: 4
+  n_layers_tf: 3
+  n_layers_fusion: 3
+  dropout: 0.15
+  patch_len: 32
+  stride: 16
+  context_len: 1024
+  
+# Large model parameters (for variant=large)
+large:
+  d_model: 768
+  n_heads: 12
+  ff_mult: 4
+  n_layers_tf: 4
+  n_layers_fusion: 4
+  dropout: 0.2
+  patch_len: 64
+  stride: 32
+  context_len: 1536
+
+# Prediction horizons
+horizons:
+  next: 1  # next N bars for price prediction
+  short: "30m"  # short-term trend classification
+  long: "1w"  # long-term trend classification
+
+# Embeddings
+embeddings:
+  use_timeframe_emb: true
+  use_instrument_emb: false  # for multi-asset
+  use_regime_emb: false  # for regime detection
+  max_instruments: 10
+  
+# Attention settings
+attention:
+  type: full  # full | local | sparse
+  local_window: 128  # for local attention
+  use_flash_attention: false  # requires flash-attn package
+  
+# Architecture options
+architecture:
+  use_layer_norm: true
+  pre_norm: true  # pre-norm vs post-norm
+  use_residual: true
+  activation: gelu  # gelu | relu | swish
+  gradient_checkpointing: false  # save memory for large models
+
+# Output heads
+heads:
+  regression:
+    type: gaussian_nll  # gaussian_nll | student_t | quantile | deterministic
+    quantiles: [0.1, 0.5, 0.9]  # for quantile head
+    student_t_df: 5.0  # degrees of freedom for Student-t
+  classification:
+    use_label_smoothing: false
+    smoothing_alpha: 0.1
