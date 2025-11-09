@@ -1,23 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-
 interface DatasetChartProps {
   filename: string;
 }
 
 export default function DatasetChart({ filename }: DatasetChartProps) {
-  const [chartData, setChartData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    // In a real implementation, this would fetch the actual CSV data
-    // and render it using a charting library like TradingView or lightweight-charts
-    // For now, we'll show a placeholder
-    setLoading(false);
-  }, [filename]);
-
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
