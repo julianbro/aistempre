@@ -1,0 +1,30 @@
+{
+  "name": "neurotrader-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Neurotrader monorepo - Next.js frontend + FastAPI backend",
+  "scripts": {
+    "dev": "concurrently \"pnpm -C frontend dev\" \"cd api && uvicorn main:app --reload\"",
+    "dev:frontend": "pnpm -C frontend dev",
+    "dev:api": "cd api && uvicorn main:app --reload",
+    "build": "pnpm -C frontend build",
+    "build:frontend": "pnpm -C frontend build",
+    "lint": "pnpm -C frontend lint && cd api && ruff check .",
+    "lint:frontend": "pnpm -C frontend lint",
+    "lint:api": "cd api && ruff check .",
+    "format": "pnpm -C frontend format && cd api && ruff format .",
+    "format:frontend": "pnpm -C frontend format",
+    "format:api": "cd api && ruff format .",
+    "type-check": "pnpm -C frontend type-check && cd api && mypy src/ main.py --ignore-missing-imports",
+    "type-check:frontend": "pnpm -C frontend type-check",
+    "type-check:api": "cd api && mypy src/ main.py --ignore-missing-imports",
+    "test": "pnpm -C frontend test && cd api && pytest -q",
+    "test:frontend": "pnpm -C frontend test",
+    "test:api": "cd api && pytest -q",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

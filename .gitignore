@@ -26,6 +26,14 @@ env/
 ENV/
 .venv
 
+# Node.js / Frontend
+node_modules/
+.pnpm-store/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+
 # IDE
 .vscode/
 .idea/

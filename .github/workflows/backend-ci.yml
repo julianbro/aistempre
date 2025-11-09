@@ -1,0 +1,52 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main, develop, copilot/** ]
+    paths:
+      - 'api/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'api/**'
+
+jobs:
+  backend-ci:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          cd api
+          pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run Ruff linter
+        run: |
+          cd api
+          ruff check .
+
+      - name: Run Ruff formatter check
+        run: |
+          cd api
+          ruff format --check .
+
+      - name: Run mypy type checker
+        run: |
+          cd api
+          mypy src/ main.py --ignore-missing-imports
+
+      - name: Run pytest
+        run: |
+          cd api
+          pytest -q
