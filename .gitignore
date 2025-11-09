@@ -41,7 +41,7 @@ htmlcov/
 .tox/
 
 # Data
-data/
+/data/
 cache/
 *.csv
 *.parquet
