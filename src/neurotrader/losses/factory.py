@@ -123,7 +123,10 @@ class GaussianNLLLoss(nn.Module):
             Loss value
         """
         var = torch.clamp(var, min=self.min_var)
-        loss = 0.5 * (torch.log(var) + (targets - mu) ** 2 / var)
+        # Include normalization constant (log(2*pi)) so the loss is a proper
+        # negative log-likelihood and generally positive for reasonable variances.
+        two_pi = torch.tensor(2.0 * 3.141592653589793, device=var.device, dtype=var.dtype)
+        loss = 0.5 * (torch.log(two_pi * var) + (targets - mu) ** 2 / var)
         return loss.mean()
 
 
