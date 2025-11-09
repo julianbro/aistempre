@@ -94,10 +94,16 @@ mypy app/
 - **ESLint** and **Prettier** for code quality
 - Server-side rendering and static generation
 - Optimized for production
+- **Data Explorer** - Browse and validate CSV datasets
+- **Run Builder** - Visual wizard for configuring training runs
+- **Training Dashboard** - Real-time monitoring of training jobs with WebSocket support
 
 ### Backend (FastAPI)
 - **FastAPI** for high-performance API
 - **neurotrader** package integration for ML models
+- **Training Run Management** - Create, monitor, and cancel training jobs
+- **WebSocket Streaming** - Real-time metrics, logs, and status updates
+- **Artifact Registry** - Download checkpoints, configs, and predictions
 - **Ruff** and **mypy** for code quality and type checking
 - Async/await support
 - OpenAPI documentation at `/docs`
@@ -220,6 +226,69 @@ We enforce strict code quality standards:
 - [Frontend README](./frontend/README.md)
 - [API README](./api/README.md)
 - [neurotrader Documentation](./docs/)
+- [EPIC 1 Summary](./EPIC1_SUMMARY.md) - Project setup and data onboarding
+- [EPIC 2 Summary](./EPIC2_SUMMARY.md) - Run builder and training dashboard
+
+### API Endpoints
+
+#### Datasets
+- `GET /datasets` - List all available datasets
+- `POST /datasets/validate` - Validate dataset format
+
+#### Training Runs
+- `POST /runs` - Create and start a new training run
+- `GET /runs` - List all training runs
+- `GET /runs/{id}` - Get run details and current metrics
+- `POST /runs/{id}/cancel` - Cancel a running training job
+- `WebSocket /runs/{id}/stream` - Stream live metrics, logs, and status updates
+
+#### Artifacts
+- `GET /runs/{id}/artifacts` - List all artifacts for a run
+- `GET /runs/{id}/artifacts/{path}` - Download a specific artifact
+
+For interactive API documentation, visit [http://localhost:8000/docs](http://localhost:8000/docs) when the API is running.
+
+## 🎮 Usage Examples
+
+### Creating a Training Run
+
+**Via UI:**
+1. Navigate to [http://localhost:3000](http://localhost:3000)
+2. Click "New Training Run"
+3. Follow the 6-step wizard to configure your run
+4. Click "Start Training" to launch
+
+**Via API:**
+```bash
+curl -X POST http://localhost:8000/runs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "config": {
+      "data_source": "./data/BTCUSDT_1m.csv",
+      "timeframes": ["1m", "15m", "1h"],
+      "variant": "base",
+      "max_epochs": 100,
+      "batch_size": 32,
+      "learning_rate": 0.0002
+    }
+  }'
+```
+
+### Monitoring Training Progress
+
+**Via UI:**
+1. After creating a run, you'll be redirected to the dashboard
+2. Watch real-time metrics, GPU usage, and logs
+3. Download checkpoints as they're created
+
+**Via WebSocket:**
+```javascript
+const ws = new WebSocket('ws://localhost:8000/runs/{run_id}/stream');
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log(data.event_type, data.data);
+};
+```
 
 ## 🤝 Contributing
 

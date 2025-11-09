@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import datasets
+from app.routers import datasets, runs
 
 app = FastAPI(
     title="AI Trading Platform API",
@@ -19,6 +19,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(datasets.router)
+app.include_router(runs.router)
 
 
 @app.get("/")
