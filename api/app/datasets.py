@@ -11,7 +11,28 @@ from app.models import DatasetInfo, ValidationIssue, ValidationReport
 def get_data_root() -> Path:
     """Get the data root directory from environment or use default."""
     data_root = os.getenv("DATA_ROOT", "./data")
-    return Path(data_root)
+    return Path(data_root).resolve()
+
+
+def is_safe_path(base_dir: Path, user_path: str) -> bool:
+    """
+    Check if the user-provided path is safe (no path traversal).
+    
+    Args:
+        base_dir: The base directory that should contain the file
+        user_path: The user-provided path
+        
+    Returns:
+        True if the path is safe, False otherwise
+    """
+    try:
+        # Construct the full path
+        full_path = (base_dir / user_path).resolve()
+        # Check if it's within base_dir
+        full_path.relative_to(base_dir)
+        return True
+    except (ValueError, OSError):
+        return False
 
 
 def discover_datasets() -> list[DatasetInfo]:
@@ -72,7 +93,26 @@ def discover_datasets() -> list[DatasetInfo]:
 def validate_dataset(filename: str) -> ValidationReport:
     """Validate a dataset CSV file."""
     data_root = get_data_root()
-    filepath = data_root / filename
+    
+    # Prevent path traversal attacks
+    if not is_safe_path(data_root, filename):
+        return ValidationReport(
+            filename=filename,
+            is_valid=False,
+            total_rows=0,
+            issues=[
+                ValidationIssue(
+                    severity="error",
+                    message="Invalid file path or access denied"
+                )
+            ],
+            schema_valid=False,
+            timezone_valid=False,
+            has_gaps=False,
+            inferred_dtypes={},
+        )
+    
+    filepath = (data_root / filename).resolve()
     issues = []
     is_valid = True
     schema_valid = True
