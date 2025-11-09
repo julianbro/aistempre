@@ -11,6 +11,12 @@ export default function Home() {
         <div className="flex gap-4">
           <a
             className="rounded-md bg-zinc-900 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+            href="/runs/new"
+          >
+            New Training Run
+          </a>
+          <a
+            className="rounded-md bg-zinc-900 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
             href="/data"
           >
             Data Explorer
