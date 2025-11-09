@@ -13,6 +13,9 @@ on:
       - 'frontend/**'
       - 'pnpm-workspace.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   frontend-ci:
     runs-on: ubuntu-latest

@@ -11,6 +11,9 @@ on:
     paths:
       - 'api/**'
 
+permissions:
+  contents: read
+
 jobs:
   backend-ci:
     runs-on: ubuntu-latest
