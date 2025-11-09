@@ -1,0 +1,67 @@
+# Loss function configuration
+
+# Regression loss
+regression:
+  loss_type: gaussian_nll  # mse | mae | huber | quantile | gaussian_nll | student_t_nll
+  
+  # Huber loss parameters
+  huber_delta: 1.0
+  
+  # Quantile loss parameters
+  quantiles: [0.1, 0.5, 0.9]
+  
+  # Student-t NLL parameters
+  student_t_df: 5.0
+  
+  # Gaussian NLL parameters
+  gaussian_min_var: 1.0e-6
+
+# Classification loss
+classification:
+  loss_type: cross_entropy  # cross_entropy | focal
+  
+  # Focal loss parameters
+  focal_gamma: 2.0
+  focal_alpha: null  # null or list of class weights
+  
+  # Label smoothing
+  label_smoothing: 0.0
+  
+  # Class weights (null for balanced, or list [UP, DOWN, FLAT])
+  class_weights: null
+
+# Multi-task loss weights
+weights:
+  regression: 0.5
+  short_trend: 0.25
+  long_trend: 0.25
+
+# Trend classification thresholds
+thresholds:
+  epsilon_bps: 10  # basis points for FLAT band
+  short_epsilon_override: null  # optional override for short trend
+  long_epsilon_override: null  # optional override for long trend
+
+# Auxiliary losses (optional)
+auxiliary:
+  use_consistency_loss: false
+  consistency_weight: 0.1
+  
+  use_contrastive_loss: false
+  contrastive_weight: 0.05
+  contrastive_temperature: 0.07
+
+# Loss scaling and clipping
+scaling:
+  use_loss_scaling: false
+  regression_scale: 1.0
+  classification_scale: 1.0
+  clip_loss: false
+  clip_value: 10.0
+
+# Calibration settings (applied post-training)
+calibration:
+  temperature_scaling: true
+  isotonic_regression: false
+  conformal_prediction: true
+  conformal_alpha: 0.1  # 90% prediction intervals

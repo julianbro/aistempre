@@ -1,0 +1,46 @@
+# Data source configuration
+source:
+  type: csv  # csv | ccxt | parquet
+  path: ./data/example.csv
+  
+  # For CCXT source
+  exchange: binance
+  symbol: BTC/USDT
+  use_testnet: false
+
+# Timeframes to use (aligned to UTC)
+timeframes:
+  - 1m
+  - 15m
+  - 4h
+  - 1d
+  - 1w
+
+# Base timeframe for alignment
+base_timeframe: 1m
+
+# Data range
+start_date: "2020-01-01"
+end_date: "2023-12-31"
+
+# Train/val/test split ratios (walk-forward)
+split:
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+  purge_days: 7  # days to purge between folds
+
+# Caching
+cache_dir: ./cache
+use_cache: true
+
+# Data preprocessing
+preprocessing:
+  forward_fill_limit: 5  # max bars to forward fill
+  drop_na: true
+  
+# Scaler settings
+scaler:
+  type: robust  # robust | standard | quantile | minmax
+  feature_range: [-1, 1]  # for minmax
+  quantile_range: [5, 95]  # for robust/quantile

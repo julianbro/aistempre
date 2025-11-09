@@ -1,0 +1,92 @@
+# Training configuration
+
+# PyTorch Lightning Trainer settings
+trainer:
+  max_epochs: 100
+  accelerator: auto  # auto | cpu | gpu | tpu
+  devices: 1
+  precision: 32  # 32 | 16 | bf16
+  strategy: auto  # auto | ddp | deepspeed
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: norm
+  accumulate_grad_batches: 1
+  deterministic: false
+  benchmark: true
+
+# Optimizer settings
+optimizer:
+  name: adamw
+  lr: 2.0e-4
+  weight_decay: 0.05
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+  amsgrad: false
+
+# Learning rate scheduler
+scheduler:
+  name: cosine  # cosine | linear | plateau | onecycle
+  warmup_steps: 0.02  # fraction of total steps or absolute number
+  min_lr: 1.0e-6
+  
+  # For ReduceLROnPlateau
+  patience: 10
+  factor: 0.5
+  
+  # For OneCycleLR
+  max_lr: 5.0e-4
+  pct_start: 0.3
+
+# Data loader settings
+dataloader:
+  batch_size: 32
+  num_workers: 4
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 2
+
+# Callbacks
+callbacks:
+  early_stopping:
+    monitor: val_loss
+    patience: 15
+    mode: min
+    min_delta: 1.0e-4
+    
+  model_checkpoint:
+    monitor: val_composite_score
+    mode: max
+    save_top_k: 3
+    save_last: true
+    filename: "epoch={epoch:02d}-val_loss={val_loss:.4f}"
+    
+  ema:
+    use_ema: false
+    decay: 0.999
+    
+  lr_monitor:
+    logging_interval: step
+
+# Logging
+logging:
+  log_every_n_steps: 50
+  use_mlflow: false
+  use_wandb: false
+  mlflow_tracking_uri: ./mlruns
+  wandb_project: neurotrader
+  save_dir: ./logs
+
+# Reproducibility
+seed: 42
+deterministic: false
+
+# Mixed precision
+use_amp: false
+amp_backend: native  # native | apex
+
+# Validation and testing
+val_check_interval: 1.0  # check every epoch or fraction
+limit_val_batches: 1.0  # use all validation data
+limit_test_batches: 1.0
+
+# Profiling (for debugging)
+profiler: null  # null | simple | advanced | pytorch

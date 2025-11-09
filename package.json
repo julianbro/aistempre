@@ -1,0 +1,17 @@
+{
+  "name": "aistempre-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI Trading Platform - Monorepo",
+  "scripts": {
+    "dev": "pnpm --filter frontend dev",
+    "build": "pnpm --filter frontend build",
+    "test": "pnpm --filter frontend test",
+    "lint": "pnpm --filter frontend lint",
+    "type-check": "pnpm --filter frontend type-check"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

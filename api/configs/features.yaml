@@ -1,0 +1,211 @@
+# Feature engineering configuration
+
+# Enable/disable feature groups
+feature_groups:
+  price_transforms: true
+  technical_indicators: true
+  volatility_measures: true
+  volume_features: true
+  microstructure: false  # requires tick data
+  calendar_features: true
+  cross_asset: false  # requires multiple assets
+  regime_features: false
+
+# Price transforms
+price_transforms:
+  log_returns:
+    enabled: true
+    lags: [1, 2, 3, 5, 10, 20]
+    timeframes: [1m, 15m, 4h, 1d, 1w]
+    
+  cumulative_returns:
+    enabled: true
+    windows: [5, 10, 20, 60]
+    timeframes: [1m, 15m, 4h, 1d]
+    
+  z_scored_price:
+    enabled: true
+    window: 100
+    timeframes: [1m, 15m, 4h, 1d]
+    
+  rolling_mean_gap:
+    enabled: true
+    windows: [20, 50, 200]
+    timeframes: [15m, 4h, 1d]
+
+# Technical indicators
+technical_indicators:
+  ema:
+    enabled: true
+    windows: [9, 21, 50, 100, 200]
+    timeframes: [15m, 4h, 1d, 1w]
+    
+  sma:
+    enabled: true
+    windows: [20, 50, 200]
+    timeframes: [4h, 1d, 1w]
+    
+  rsi:
+    enabled: true
+    periods: [14, 21]
+    timeframes: [15m, 4h, 1d]
+    
+  macd:
+    enabled: true
+    fast: 12
+    slow: 26
+    signal: 9
+    timeframes: [15m, 4h, 1d]
+    
+  stochastic:
+    enabled: true
+    k_period: 14
+    d_period: 3
+    timeframes: [15m, 4h, 1d]
+    
+  cci:
+    enabled: true
+    period: 20
+    timeframes: [15m, 4h, 1d]
+    
+  adx:
+    enabled: true
+    period: 14
+    timeframes: [15m, 4h, 1d]
+    
+  atr:
+    enabled: true
+    periods: [14, 21]
+    timeframes: [15m, 4h, 1d]
+    
+  bollinger_bands:
+    enabled: true
+    period: 20
+    std_dev: 2.0
+    timeframes: [15m, 4h, 1d]
+    
+  donchian_channel:
+    enabled: true
+    period: 20
+    timeframes: [4h, 1d]
+
+# Volatility measures
+volatility_measures:
+  realized_volatility:
+    enabled: true
+    windows: [20, 60, 120]
+    timeframes: [1m, 15m, 4h]
+    
+  parkinson:
+    enabled: true
+    window: 20
+    timeframes: [15m, 4h, 1d]
+    
+  garman_klass:
+    enabled: true
+    window: 20
+    timeframes: [15m, 4h, 1d]
+    
+  volatility_ratio:
+    enabled: true
+    short_window: 10
+    long_window: 50
+    timeframes: [15m, 4h, 1d]
+
+# Volume features
+volume_features:
+  obv:
+    enabled: true
+    timeframes: [15m, 4h, 1d]
+    
+  vwap:
+    enabled: true
+    timeframes: [1m, 15m, 4h, 1d]
+    
+  mfi:
+    enabled: true
+    period: 14
+    timeframes: [15m, 4h, 1d]
+    
+  volume_zscore:
+    enabled: true
+    window: 20
+    timeframes: [15m, 4h, 1d]
+    
+  volume_delta:
+    enabled: true
+    timeframes: [1m, 15m]
+
+# Microstructure (requires tick/L2 data)
+microstructure:
+  bid_ask_spread:
+    enabled: false
+    timeframes: [1m]
+    
+  order_imbalance:
+    enabled: false
+    timeframes: [1m]
+    
+  trade_sign_imbalance:
+    enabled: false
+    timeframes: [1m]
+
+# Calendar features
+calendar_features:
+  hour_of_day:
+    enabled: true
+    encoding: cyclical  # cyclical | onehot
+    
+  day_of_week:
+    enabled: true
+    encoding: cyclical
+    
+  month_of_year:
+    enabled: true
+    encoding: cyclical
+    
+  is_weekend:
+    enabled: true
+    
+  is_holiday:
+    enabled: false
+    calendar: NYSE
+    
+  session_flags:
+    enabled: true
+    sessions: [asian, european, us]
+
+# Cross-asset features (requires multiple symbols)
+cross_asset:
+  correlations:
+    enabled: false
+    window: 60
+    assets: [SPY, DXY, VIX]
+    
+  spread:
+    enabled: false
+    pairs: [[BTC/USDT, ETH/USDT]]
+
+# Regime features
+regime_features:
+  rolling_sharpe:
+    enabled: false
+    window: 60
+    timeframes: [1d]
+    
+  rolling_drawdown:
+    enabled: false
+    window: 60
+    timeframes: [1d]
+    
+  hmm_state:
+    enabled: false
+    n_states: 3
+    timeframe: 1d
+
+# Feature engineering settings
+settings:
+  min_required_bars: 200  # minimum history required
+  lookback_multiplier: 1.5  # safety margin for indicator calculation
+  handle_missing: forward_fill  # forward_fill | drop | interpolate
+  max_forward_fill: 5
