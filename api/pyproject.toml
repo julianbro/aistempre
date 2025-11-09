@@ -66,7 +66,7 @@ neurotrader-export-onnx = "neurotrader.cli:export_onnx_command"
 packages = ["src/neurotrader", "app"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "neurotrader_tests"]
+testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

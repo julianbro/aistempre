@@ -6,8 +6,7 @@ export default function Home() {
           AI Trading Platform
         </h1>
         <p className="max-w-2xl text-center text-lg text-zinc-600 dark:text-zinc-400">
-          Multi-input, multi-horizon, probabilistic Transformer for financial time-series
-          prediction
+          Multi-input, multi-horizon, probabilistic Transformer for financial time-series prediction
         </p>
         <div className="flex gap-4">
           <a
